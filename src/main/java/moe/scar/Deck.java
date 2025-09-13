@@ -8,7 +8,7 @@ import java.util.Scanner;
 public class Deck {
     protected String decklistPath;
 
-    private ArrayList<Card> deckList;
+    private ArrayList<Card> deckList = new ArrayList<>();
 
     public Deck(String decklistPath) {
         this.decklistPath = decklistPath;

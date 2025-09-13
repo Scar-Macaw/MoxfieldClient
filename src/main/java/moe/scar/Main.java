@@ -23,7 +23,8 @@ public class Main {
     private static boolean testMode = true;
     static ArrayList<String> decks = new ArrayList<>();
     static ArrayList<Deck> deckLists = new ArrayList<>();
-    static int selectedIndex = 0, selectedDeck = 0;
+    static boolean inDeck = false;
+    static int maxVisible = 0, scrollOffset= 0, selectedIndex = 0, selectedDeck = 0, selectedIndexCard = 0;
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
@@ -35,8 +36,8 @@ public class Main {
             screen.setCursorPosition(null);
             TerminalSize size = screen.getTerminalSize();
             TextGraphics textGraphics = screen.newTextGraphics();
-            deckLists.add(new Deck("decklists/magda.list"));
-            deckLists.add(new Deck("decklists/magda.txt"));
+            deckLists.add(new Deck("/home/scar/IdeaProjects/MoxfieldClient1/decklists/skull-ce & gab-briar.txt"));
+            deckLists.add(new Deck("decklists/Magda $100 cad.txt"));
             deckLists.add(new Deck("decklists/skull.txt"));
             decks.add("skull");
             decks.add("pigeon");
@@ -52,43 +53,44 @@ public class Main {
                     render(screen, newSize, textGraphics);
                 }
 
-            if(testMode){
+
                 if (key != null) {
 
-                    switch (key.getKeyType()) {
-                        case ArrowUp:
-                            selectedIndex = (selectedIndex - 1 + deckLists.size()) % deckLists.size();
-                            break;
-                        case ArrowDown:
-                            selectedIndex = (selectedIndex + 1) % deckLists.size();
-                            break;
-                        case ArrowRight:
-                        case Enter:
-                            selectedDeck = selectedIndex;
-                            System.out.println("Selected: " + deckLists.get(selectedIndex));
-                            break;
-                        case Escape:
-                            break;
-                    }
-                }
-            }else {
-                if (key != null) {
+                    if(!inDeck){
 
-                    switch (key.getKeyType()) {
-                        case ArrowUp:
-                            selectedIndex = (selectedIndex - 1 + decks.size()) % decks.size();
-                            break;
-                        case ArrowDown:
-                            selectedIndex = (selectedIndex + 1) % decks.size();
-                            break;
-                        case Enter:
-                            System.out.println("Selected: " + decks.get(selectedIndex));
-                            break;
-                        case Escape:
-                            break;
+                        switch (key.getKeyType()) {
+                            case ArrowUp:
+                                selectedIndex = (selectedIndex - 1 + deckLists.size()) % deckLists.size();
+                                break;
+                            case ArrowDown:
+                                selectedIndex = (selectedIndex + 1) % deckLists.size();
+                                break;
+                            case ArrowRight:
+                            case Enter:
+                                selectedIndexCard = 0;
+                                selectedDeck = selectedIndex;
+                                inDeck = true;
+//                            System.out.println("Selected: " + deckLists.get(selectedIndex));
+                                break;
+                            case Escape:
+                                break;
+                        }
+                    } else{
+                        switch (key.getKeyType()) {
+                            case ArrowUp:
+                                selectedIndexCard = (selectedIndexCard - 1 + deckLists.get(selectedIndex).getDeckList().size()) % deckLists.get(selectedIndex).getDeckList().size();
+                                break;
+                            case ArrowDown:
+                                selectedIndexCard = (selectedIndexCard + 1) % deckLists.get(selectedIndex).getDeckList().size();
+                                break;
+                            case ArrowLeft:
+                                inDeck = false;
+                                break;
+
+                        }
                     }
+
                 }
-            }
 
                 if (key != null) {
                     textGraphics.setBackgroundColor(TextColor.ANSI.DEFAULT);
@@ -121,7 +123,7 @@ public class Main {
     }
 
     public static void render(Screen screen, TerminalSize size, TextGraphics tg) throws IOException {
-
+        maxVisible = size.getRows()-6;
         borders(screen, size);
 
         //deck  list list to content seperator
@@ -137,7 +139,6 @@ public class Main {
         tg.putString(2, 1, "Moxfield Tui");
         tg.putString(size.getColumns() - 9, 1, "v1.0.0");
         int i;
-        if (testMode){
             for (i = 0; i < deckLists.size(); i++){
                 if (i == selectedIndex) {
                     tg.setBackgroundColor(TextColor.ANSI.BLUE);
@@ -152,22 +153,6 @@ public class Main {
 
 
             }
-        } else {
-            for (i = 0; i < decks.size(); i++) {
-                if (i == selectedIndex) {
-                    tg.setBackgroundColor(TextColor.ANSI.BLUE);
-                    tg.setForegroundColor(TextColor.ANSI.WHITE);
-                } else {
-                    tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
-                    tg.setForegroundColor(TextColor.ANSI.DEFAULT);
-                }
-                //(size.getColumns()/3-1)/2-(decks.get(i).length()/2)
-                tg.putString(centerX(size.getColumns() / 3 - 1, decks.get(i)), 3 + 3 * i, decks.get(i));
-                drawHorizontalLine(size, screen, 0, 5 + 3 * i, size.getColumns() / 3, Symbols.DOUBLE_LINE_HORIZONTAL);
-
-
-            }
-        }
 //        tg.putString(centerX(size.getColumns()/3-1, "Add +"), 3+3*i, "Add +");
 //        drawHorizontalLine(size, screen, 0, 5+3*i,size.getColumns()/3, Symbols.DOUBLE_LINE_HORIZONTAL);
         //deck seperator
@@ -175,7 +160,15 @@ public class Main {
 //        for (i = 0; i < deckLists.size(); i++) {
         tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
         tg.setForegroundColor(TextColor.ANSI.DEFAULT);
-            for (int j = 0; j < deckLists.get(selectedDeck).getDeckList().size(); j++) {
+        int j;
+            for (j = 0; j < deckLists.get(selectedDeck).getDeckList().size(); j++) {
+                if (j == selectedIndexCard) {
+                    tg.setBackgroundColor(TextColor.ANSI.BLUE);
+                    tg.setForegroundColor(TextColor.ANSI.WHITE);
+                } else {
+                    tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
+                    tg.setForegroundColor(TextColor.ANSI.DEFAULT);
+                }
                 tg.putString(size.getColumns()/3+2,3+j,deckLists.get(selectedDeck).getDeckList().get(j).toString());
 
             }
