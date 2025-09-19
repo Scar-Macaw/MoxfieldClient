@@ -24,21 +24,22 @@ public class Main {
     static ArrayList<String> decks = new ArrayList<>();
     static ArrayList<Deck> deckLists = new ArrayList<>();
     static boolean inDeck = false;
+    static int k = 0, l = 0, magic = 0;
     static int maxVisible = 0, scrollOffset= 0, selectedIndex = 0, selectedDeck = 0, selectedIndexCard = 0;
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
         var terminal = new DefaultTerminalFactory().createTerminal();
         var screen = new TerminalScreen(terminal);
-        deckData hi = new deckData();
         try {
             screen.startScreen();
             screen.setCursorPosition(null);
             TerminalSize size = screen.getTerminalSize();
             TextGraphics textGraphics = screen.newTextGraphics();
-            deckLists.add(new Deck("/home/scar/IdeaProjects/MoxfieldClient1/decklists/skull-ce & gab-briar.txt"));
-            deckLists.add(new Deck("decklists/Magda $100 cad.txt"));
+//            deckLists.add(new Deck("/home/scar/IdeaProjects/MoxfieldClient1/decklists/skull-ce & gab-briar.txt"));
+//            deckLists.add(new Deck("decklists/Magda $100 cad.txt"));
             deckLists.add(new Deck("decklists/skull.txt"));
+            deckLists.add(new Deck("/Users/scar/IdeaProjects/MoxfieldClient/decklists/Teval Land Fall.txt"));
             decks.add("skull");
             decks.add("pigeon");
             decks.add("vito");
@@ -86,6 +87,11 @@ public class Main {
                             case ArrowLeft:
                                 inDeck = false;
                                 break;
+                                case ArrowRight:
+                                    if (magic < 4){
+                                        magic++;
+                                    } else { magic = 0;}
+                                    break;
 
                         }
                     }
@@ -118,6 +124,8 @@ public class Main {
 
         }
     }
+
+//    private static
     private static int centerX(int width, String text){
         return (width/2-text.length()/2);
     }
@@ -156,12 +164,28 @@ public class Main {
 //        tg.putString(centerX(size.getColumns()/3-1, "Add +"), 3+3*i, "Add +");
 //        drawHorizontalLine(size, screen, 0, 5+3*i,size.getColumns()/3, Symbols.DOUBLE_LINE_HORIZONTAL);
         //deck seperator
+        int m = 0;
+//        try {
+            String[][] visibleCards = new String
+//                    [deckLists.size()/ (deckLists.size() / (size.getRows()))]
+                    [5]
+//                    [deckLists.get(0).getDeckList().size() / (size.getRows())];
+        [5];
+            for (k = 0; k < visibleCards.length ; k++) {
+                for (l = 0; l < visibleCards[k].length; l++){
+                    visibleCards[k][l] = deckLists.get(selectedDeck).getDeckList().get(m).toString();
+                    m++;
+                }
+            }
 
-//        for (i = 0; i < deckLists.size(); i++) {
-        tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
-        tg.setForegroundColor(TextColor.ANSI.DEFAULT);
-        int j;
-            for (j = 0; j < deckLists.get(selectedDeck).getDeckList().size(); j++) {
+
+
+            //        for (i = 0; i < deckLists.size(); i++) {
+            tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
+            tg.setForegroundColor(TextColor.ANSI.DEFAULT);
+            int j;
+//            for (j = 0; j < deckLists.get(selectedDeck).getDeckList().size(); j++) {
+            for (j = 0; j < visibleCards[magic].length; j++) {
                 if (j == selectedIndexCard) {
                     tg.setBackgroundColor(TextColor.ANSI.BLUE);
                     tg.setForegroundColor(TextColor.ANSI.WHITE);
@@ -169,10 +193,16 @@ public class Main {
                     tg.setBackgroundColor(TextColor.ANSI.DEFAULT);
                     tg.setForegroundColor(TextColor.ANSI.DEFAULT);
                 }
-                tg.putString(size.getColumns()/3+2,3+j,deckLists.get(selectedDeck).getDeckList().get(j).toString());
+                tg.putString(size.getColumns()/3+2,3+j, visibleCards[magic][j]);
+//                tg.putString(size.getColumns()/3+2,3+j,deckLists.get(selectedDeck).getDeckList().get(j).toString());
 
             }
 //        }
+//        }catch(Exception e){
+//            System.out.println("it broke");
+//            System.out.println(e.getMessage());
+//        }
+
 
 
         //account info seperator
