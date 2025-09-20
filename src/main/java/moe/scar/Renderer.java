@@ -11,7 +11,7 @@ public class Renderer {
 
 
 
-
+//todo flesh out renderer code to be usable for other applications
     public static void drawVerticalDivider(TerminalSize size, Screen screen, int x, int rows) {
         drawVerticalLine(size, screen, 0, x, rows, Symbols.DOUBLE_LINE_VERTICAL);
 
